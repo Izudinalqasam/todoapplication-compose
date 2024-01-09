@@ -1,0 +1,3 @@
+package com.example.todoapplication.domain.repository
+
+interface TodoRepository
