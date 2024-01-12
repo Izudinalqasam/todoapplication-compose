@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.todoapplication.presentation.navigation.TodoNavigation
 import com.example.todoapplication.presentation.screen.home.HomeScreen
 import com.example.todoapplication.presentation.screen.home.HomeViewModel
@@ -57,11 +59,14 @@ fun AppMainScreen() {
         }
 
         composable(TodoNavigation.TodoAdd.route) {
-            TodoAddScreen(navController)
+            TodoAddScreen(navController, todoAddViewModel)
         }
 
-        composable(TodoNavigation.TodoEdit.route) {
-           TodoEditScreen()
+        composable(
+            route = TodoNavigation.TodoEdit.route,
+            arguments = listOf(navArgument("todoId") { type = NavType.StringType })
+        ) {
+            TodoEditScreen(navController, todoEditViewModel, it.arguments?.getInt("todoId") ?: 0)
         }
     }
 }

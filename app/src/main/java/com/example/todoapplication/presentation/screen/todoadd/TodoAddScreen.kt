@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.todoapplication.domain.entity.Todo
+import com.example.todoapplication.presentation.state.UIState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,9 +41,7 @@ fun TodoAddScreen(
     navController: NavController,
     todoAddViewModel: TodoAddViewModel
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
+    val uiState = todoAddViewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -74,55 +74,86 @@ fun TodoAddScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = {
-                    Text(text = "Title")
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            when (uiState.value) {
+                is UIState.Initial -> {
+                    InputForm(todoAddViewModel = todoAddViewModel)
+                }
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = {
-                    Text(text = "Description")
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            )
+                is UIState.Loading -> {
+                    Text(text = "Loading...")
+                }
 
-            Spacer(modifier = Modifier.height(20.dp))
+                is UIState.Success -> {
+                    Text(text = "Success input data")
+                    navController.popBackStack()
+                }
 
-            OutlinedTextField(
-                value = content,
-                onValueChange = { content = it },
-                singleLine = false,
-                label = {
-                    Text(text = "Content")
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                modifier = Modifier.height(100.dp),
-                maxLines = 5
-            )
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            OutlinedButton(onClick = {
-                todoAddViewModel.insertTodoById(
-                    Todo(
-                        id = 0,
-                        title = title,
-                        description = description,
-                        content = content
-                    )
-                )
-                navController.popBackStack()
-            }) {
-                Text(text = "Add Todo")
+                is UIState.Error -> {
+                    Text(text = (uiState.value as UIState.Error).message)
+                }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InputForm(todoAddViewModel: TodoAddViewModel) {
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        OutlinedTextField(
+            value = title,
+            onValueChange = { title = it },
+            label = {
+                Text(text = "Title")
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = {
+                Text(text = "Description")
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = content,
+            onValueChange = { content = it },
+            singleLine = false,
+            label = {
+                Text(text = "Content")
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            modifier = Modifier.height(100.dp),
+            maxLines = 5
+        )
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        OutlinedButton(onClick = {
+            todoAddViewModel.insertTodoById(
+                Todo(
+                    id = 0,
+                    title = title,
+                    description = description,
+                    content = content
+                )
+            )
+        }) {
+            Text(text = "Add Todo")
         }
     }
 }

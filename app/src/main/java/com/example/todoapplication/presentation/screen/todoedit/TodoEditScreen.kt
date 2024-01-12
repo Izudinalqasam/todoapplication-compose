@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -19,6 +22,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,16 +36,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.todoapplication.domain.entity.Todo
+import com.example.todoapplication.presentation.state.UIState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoEditScreen(
     navController: NavController,
-    todoEditViewModel: TodoEditViewModel
+    todoEditViewModel: TodoEditViewModel,
+    todoId: Int
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var content by remember { mutableStateOf("") }
+    val uiState = todoEditViewModel.uiState.collectAsState()
+
+    LaunchedEffect(todoId) {
+        todoEditViewModel.getTodoById(todoId)
+    }
 
     Scaffold(
         topBar = {
@@ -50,7 +59,7 @@ fun TodoEditScreen(
                     .fillMaxWidth()
                     .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Start
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
@@ -67,6 +76,18 @@ fun TodoEditScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                if (uiState.value is UIState.Success && (uiState.value as UIState.Success<Todo>).data.id != 0) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Back",
+                        modifier = Modifier.clickable {
+                            todoEditViewModel.deleteTodo((uiState.value as UIState.Success<Todo>).data)
+                        }
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -77,56 +98,89 @@ fun TodoEditScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedTextField(
-                value = title,
-                onValueChange = {
-                    title = it
-                },
-                label = {
-                    Text(text = "Title")
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            when (uiState.value) {
+                is UIState.Loading -> {
+                    Text(text = "Loading...")
+                }
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = {
-                    description = it
-                },
-                label = {
-                    Text(text = "Description")
-                }, keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            )
+                is UIState.Success -> {
+                    val todo = (uiState.value as UIState.Success<Todo>).data
+                    InputForm(todo, todoEditViewModel = todoEditViewModel)
+                }
 
-            Spacer(modifier = Modifier.height(20.dp))
+                is UIState.Error -> {
+                    Text(text = "Error")
+                }
 
-            OutlinedTextField(
-                value = content,
-                onValueChange = { content = it },
-                singleLine = false, label = {
-                    Text(text = "Content")
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                maxLines = 5,
-                modifier = Modifier.height(100.dp)
-            )
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            OutlinedButton(onClick = {
-                todoEditViewModel.updateTodo(
-                    Todo(
-                        id = 0,
-                        title = title,
-                        description = description,
-                        content = content
-                    )
+                else -> {
+                    Text(text = "Initial")
+                }
             }
-            ) {
+        }
+    }
+}
 
-            }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InputForm(todo: Todo, todoEditViewModel: TodoEditViewModel) {
+    var title by remember(todo.title) { mutableStateOf(todo.title) }
+    var description by remember(todo.description) { mutableStateOf(todo.description) }
+    var content by remember(todo.content) { mutableStateOf(todo.content) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        OutlinedTextField(
+            value = title,
+            onValueChange = {
+                title = it
+            },
+            label = {
+                Text(text = "Title")
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = description,
+            onValueChange = {
+                description = it
+            },
+            label = {
+                Text(text = "Description")
+            }, keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = content,
+            onValueChange = { content = it },
+            singleLine = false, label = {
+                Text(text = "Content")
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            maxLines = 5,
+            modifier = Modifier.height(100.dp)
+        )
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        OutlinedButton(onClick = {
+            todoEditViewModel.updateTodo(
+                Todo(
+                    id = todo.id,
+                    title = title,
+                    description = description,
+                    content = content
+                )
+            )
+        }
+        ) {
+            Text(text = "Update")
         }
     }
 }
