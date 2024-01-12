@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -70,7 +71,21 @@ fun HomeScreen(
                         )
                         Text(text = it.description, modifier = Modifier.padding(10.dp, 5.dp, 10.dp, 10.dp))
                     }
+                }
 
+                item {
+                    OutlinedButton(
+                        onClick = {
+                            navController.navigate(TodoNavigation.TodoAdd.route)
+                        },
+                        modifier = Modifier.padding(vertical = 30.dp)
+                    ) {
+                        Text(text = "Add Todo", modifier = Modifier
+                            .padding(vertical = 10.dp)
+                            .clickable {
+                                navController.navigate(TodoNavigation.TodoAdd.route)
+                            })
+                    }
                 }
             }
         }
