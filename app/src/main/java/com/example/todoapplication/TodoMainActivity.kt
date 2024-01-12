@@ -55,7 +55,7 @@ fun AppMainScreen() {
         startDestination = TodoNavigation.Home.route
     ) {
         composable(TodoNavigation.Home.route) {
-            HomeScreen(homeViewModel)
+            HomeScreen(navController, homeViewModel)
         }
 
         composable(TodoNavigation.TodoAdd.route) {

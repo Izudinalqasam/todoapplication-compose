@@ -20,7 +20,9 @@ class TodoEditViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<UIState<Todo>> = MutableStateFlow(
         UIState.Initial
     )
+    private val _closeState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val uiState = _uiState
+    val closeState = _closeState
 
     fun getTodoById(id: Int) {
         viewModelScope.launch {
@@ -56,6 +58,7 @@ class TodoEditViewModel @Inject constructor(
             }
 
             _uiState.value = UIState.Success(todo)
+            _closeState.value = true
         }
     }
 }

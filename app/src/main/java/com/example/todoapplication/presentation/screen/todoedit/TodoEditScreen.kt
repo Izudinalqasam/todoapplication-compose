@@ -1,5 +1,6 @@
 package com.example.todoapplication.presentation.screen.todoedit
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -46,6 +48,7 @@ fun TodoEditScreen(
     todoId: Int
 ) {
     val uiState = todoEditViewModel.uiState.collectAsState()
+    val closeState = todoEditViewModel.closeState.collectAsState()
 
     LaunchedEffect(todoId) {
         todoEditViewModel.getTodoById(todoId)
@@ -128,6 +131,8 @@ fun InputForm(todo: Todo, todoEditViewModel: TodoEditViewModel) {
     var description by remember(todo.description) { mutableStateOf(todo.description) }
     var content by remember(todo.content) { mutableStateOf(todo.content) }
 
+    val context = LocalContext.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -178,6 +183,7 @@ fun InputForm(todo: Todo, todoEditViewModel: TodoEditViewModel) {
                     content = content
                 )
             )
+            Toast.makeText(context, "Update berhasil", Toast.LENGTH_SHORT).show()
         }
         ) {
             Text(text = "Update")
