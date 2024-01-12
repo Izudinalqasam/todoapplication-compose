@@ -25,6 +25,7 @@ import com.example.todoapplication.presentation.screen.todoadd.TodoAddViewModel
 import com.example.todoapplication.presentation.screen.todoedit.TodoEditScreen
 import com.example.todoapplication.presentation.screen.todoedit.TodoEditViewModel
 import com.example.todoapplication.presentation.theme.TodoApplicationTheme
+import com.example.todoapplication.util.toSafe
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -64,9 +65,9 @@ fun AppMainScreen() {
 
         composable(
             route = TodoNavigation.TodoEdit.route,
-            arguments = listOf(navArgument("todoId") { type = NavType.StringType })
+            arguments = listOf(navArgument("todoId") { type = NavType.IntType })
         ) {
-            TodoEditScreen(navController, todoEditViewModel, it.arguments?.getInt("todoId") ?: 0)
+            TodoEditScreen(navController, todoEditViewModel, it.arguments?.getInt("todoId").toSafe(0))
         }
     }
 }

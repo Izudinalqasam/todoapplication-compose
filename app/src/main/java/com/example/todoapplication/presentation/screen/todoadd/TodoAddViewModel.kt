@@ -30,4 +30,8 @@ class TodoAddViewModel @Inject constructor(
             _uiState.value = UIState.Success("Todo added successfully")
         }
     }
+
+    fun resetUIState() {
+        _uiState.value = UIState.Initial
+    }
 }

@@ -9,6 +9,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,12 +27,12 @@ fun HomeScreen(
 ) {
     val uiState = homeViewModel.uiState.collectAsState()
 
-    when (uiState.value) {
-        is UIState.Initial -> {
-            homeViewModel.getAllTodos()
-        }
+    LaunchedEffect(Unit) {
+        homeViewModel.getAllTodos()
+    }
 
-        is UIState.Loading -> {
+    when (uiState.value) {
+        is UIState.Initial, UIState.Loading -> {
             Text(text = "Loading...")
         }
 
@@ -56,6 +57,7 @@ fun HomeScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(0.dp, 0.dp, 0.dp, 10.dp)
                             .clickable {
                                 navController.navigate(
                                     "todo_edit/${it.id}"

@@ -23,4 +23,12 @@ class TodoMapper @Inject constructor() {
             content = todo.content
         )
     }
+
+//    fun mapTodoToTodoEntityWithIdAutoGenerate(todo: Todo): TodoEntity{
+//        return TodoEntity(
+//            title = todo.title,
+//            description = todo.description,
+//            content = todo.content
+//        )
+//    }
 }

@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,11 +49,24 @@ fun TodoEditScreen(
     todoId: Int
 ) {
     val uiState = todoEditViewModel.uiState.collectAsState()
-    val closeState = todoEditViewModel.closeState.collectAsState()
+    val clearState = todoEditViewModel.clearUIState.collectAsState()
 
     LaunchedEffect(todoId) {
         todoEditViewModel.getTodoById(todoId)
     }
+
+    LaunchedEffect(key1 = clearState.value) {
+        if (clearState.value) {
+            navController.popBackStack()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            todoEditViewModel.resetUIState()
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -82,7 +96,7 @@ fun TodoEditScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                if (uiState.value is UIState.Success && (uiState.value as UIState.Success<Todo>).data.id != 0) {
+                if (uiState.value is UIState.Success && (uiState.value as UIState.Success<Todo>).data.id != -1) {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = "Back",
